@@ -1,0 +1,411 @@
+{
+	"info": {
+		"_postman_id": "1888e3a4-0ef0-4251-abbf-82af573113c1",
+		"name": "CoinGeckoTests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42538488"
+	},
+	"item": [
+		{
+			"name": "Functional Tests",
+			"item": [
+				{
+					"name": "Simple Price Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains Ethereum price\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"ethereum\");",
+									"    pm.expect(jsonData.ethereum).to.have.property(\"usd\");",
+									"    pm.expect(jsonData.ethereum.usd).to.be.a(\"number\");",
+									"});",
+									"",
+									"pm.test(\"Check if price is greater than 0\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.ethereum.usd).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Validate response time <500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/simple/price?ids=ethereum&vs_currencies=usd&x_cg_demo_api_key={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"simple",
+								"price"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "ethereum",
+									"description": "Cryptocurrency ID\n"
+								},
+								{
+									"key": "vs_currencies",
+									"value": "usd",
+									"description": "Currency to convert to\n"
+								},
+								{
+									"key": "x_cg_demo_api_key",
+									"value": "{{api_key}}"
+								}
+							]
+						},
+						"description": "Retrieve the current price of Ethereum (ETH) in USD."
+					},
+					"response": []
+				},
+				{
+					"name": "Coin Markets Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains a list of coins\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Each coin has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function (coin) {",
+									"        pm.expect(coin).to.have.property(\"id\");",
+									"        pm.expect(coin).to.have.property(\"symbol\");",
+									"        pm.expect(coin).to.have.property(\"name\");",
+									"        pm.expect(coin).to.have.property(\"image\");",
+									"        pm.expect(coin).to.have.property(\"current_price\");",
+									"        pm.expect(coin).to.have.property(\"market_cap\");",
+									"        pm.expect(coin).to.have.property(\"market_cap_rank\");",
+									"        pm.expect(coin).to.have.property(\"fully_diluted_valuation\");",
+									"        pm.expect(coin).to.have.property(\"total_volume\");",
+									"        pm.expect(coin).to.have.property(\"high_24h\");",
+									"        pm.expect(coin).to.have.property(\"low_24h\");",
+									"        pm.expect(coin).to.have.property(\"price_change_24h\");",
+									"        pm.expect(coin).to.have.property(\"price_change_percentage_24h\");",
+									"        pm.expect(coin).to.have.property(\"market_cap_change_24h\");",
+									"        pm.expect(coin).to.have.property(\"market_cap_change_percentage_24h\");",
+									"        pm.expect(coin).to.have.property(\"circulating_supply\");",
+									"        pm.expect(coin).to.have.property(\"total_supply\");",
+									"        pm.expect(coin).to.have.property(\"max_supply\");",
+									"        pm.expect(coin).to.have.property(\"ath\");",
+									"        pm.expect(coin).to.have.property(\"ath_change_percentage\");",
+									"        pm.expect(coin).to.have.property(\"ath_date\");",
+									"        pm.expect(coin).to.have.property(\"atl\");",
+									"        pm.expect(coin).to.have.property(\"atl_change_percentage\");",
+									"        pm.expect(coin).to.have.property(\"atl_date\");",
+									"        pm.expect(coin).to.have.property(\"last_updated\");",
+									"        pm.expect(coin).to.have.property(\"roi\");",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Validate currency conversion\", function () {",
+									"    var queryParams = pm.request.url.query.toObject();",
+									"    if (queryParams.vs_currency) {",
+									"        pm.expect(queryParams.vs_currency).to.match(/^(usd|eur|gbp)$/);",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Validate response time <500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/coins/markets?vs_currency=usd&x_cg_demo_api_key={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"coins",
+								"markets"
+							],
+							"query": [
+								{
+									"key": "vs_currency",
+									"value": "usd"
+								},
+								{
+									"key": "x_cg_demo_api_key",
+									"value": "{{api_key}}"
+								}
+							]
+						},
+						"description": "List of coins with id, symbol, and name"
+					},
+					"response": []
+				},
+				{
+					"name": "Coins List Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains a list of coins\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Each coin has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function (coin) {",
+									"        pm.expect(coin).to.have.property(\"id\");",
+									"        pm.expect(coin).to.have.property(\"symbol\");",
+									"        pm.expect(coin).to.have.property(\"name\");",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Validate response time <500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/coins/list?x_cg_demo_api_key={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"coins",
+								"list"
+							],
+							"query": [
+								{
+									"key": "x_cg_demo_api_key",
+									"value": "{{api_key}}"
+								}
+							]
+						},
+						"description": "Get market data for a specific coin."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Security Tests",
+			"item": [
+				{
+					"name": "SQL Injection Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate API rejects SQL injection attempts\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property(\"error\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/simple/price?ids=bitcoin' OR '1'='1&vs_currencies=usd&x_cg_demo_api_key={{api_key}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"simple",
+								"price"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "bitcoin' OR '1'='1"
+								},
+								{
+									"key": "vs_currencies",
+									"value": "usd"
+								},
+								{
+									"key": "x_cg_demo_api_key",
+									"value": "{{api_key}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authentication Bypass Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ensure API key is required\", function () {",
+									"    pm.response.to.have.status(401); ",
+									"    pm.expect(pm.response.json()).to.have.property(\"error\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/simple/price?ids=bitcoin&vs_currencies=usd",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"simple",
+								"price"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "bitcoin"
+								},
+								{
+									"key": "vs_currencies",
+									"value": "usd"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rate Limiting Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check for rate limiting (429 Too Many Requests)\", function () {",
+									"    if (pm.response.code === 429) {",
+									"        console.log(\"Rate limit exceeded. API rejected the request.\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/simple/price?ids=bitcoin&vs_currencies=usd",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"simple",
+								"price"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "bitcoin"
+								},
+								{
+									"key": "vs_currencies",
+									"value": "usd"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sensitive Data Exposure Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ensure sensitive data is not exposed\", function () {",
+									"    let res = pm.response.json();",
+									"    pm.expect(res).to.not.have.property(\"password\");",
+									"    pm.expect(res).to.not.have.property(\"api_key\");",
+									"    pm.expect(res).to.not.have.property(\"private_key\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/coins/markets?vs_currency=usd",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"coins",
+								"markets"
+							],
+							"query": [
+								{
+									"key": "vs_currency",
+									"value": "usd"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
