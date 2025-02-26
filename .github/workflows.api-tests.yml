@@ -1,0 +1,67 @@
+name: API Functional & Performance Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  functional-tests:
+    name: Functional API Tests (Postman)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Functional API Tests
+        run: |
+          newman run CoinGeckoTests.postman_collection.json \
+            -e CoinGeckoEnv.json \
+            --reporters cli,json,htmlextra \
+            --reporter-json-export reports/functional-test-results.json \
+            --reporter-htmlextra-export reports/functional-test-report.html
+
+      - name: Upload Functional Test Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: functional-test-reports
+          path: reports/
+
+  performance-tests:
+    name: Performance Tests (k6)
+    runs-on: ubuntu-latest
+    needs: functional-tests # Run only after functional tests pass
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install k6
+        run: |
+          sudo apt update
+          sudo apt install k6
+
+      - name: Run Load Test
+        run: K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=reports/load-test-report.html k6 run load_test.js
+
+      - name: Run Stress Test
+        run: K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=reports/stress-test-report.html k6 run stress_test.js
+
+      - name: Upload Performance Test Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-reports
+          path: reports/
+
